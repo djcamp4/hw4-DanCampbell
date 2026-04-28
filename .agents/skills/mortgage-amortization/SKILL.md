@@ -55,14 +55,26 @@ If the user gives the loan in prose, build the JSON spec first and write it to d
 
 ## Step-by-step
 
-1. Gather the loan parameters from the user. If anything required is missing, ask before running.
-2. Write the spec to a JSON file (e.g. under `assets/` or `/tmp/`).
+There are two flows — pick based on how the user describes the loan.
+
+### Flow A: user gives all the numbers in prose
+1. Build the spec JSON yourself from what they said.
+2. Write it to disk (e.g. `/tmp/loan.json`).
 3. Run:
    ```
    python3 .agents/skills/mortgage-amortization/scripts/amortize.py <spec.json>
    ```
-4. Show the user the summary. Point at the CSV path so they can open it in a spreadsheet.
-5. For follow-up scenarios ("what if I do $300 instead of $200?"), edit the spec and re-run — do not try to recompute totals by hand.
+
+### Flow B: user wants to be asked, or hasn't given all the fields
+Hand off to the interactive prompt. It asks for each required field, validates input (numbers, ISO dates, schedule choice), re-prompts on bad input, and runs the amortizer when done:
+```
+python3 .agents/skills/mortgage-amortization/scripts/new_loan.py --out <spec.json>
+```
+Use `--no-run` if the user only wants the spec saved.
+
+### After either flow
+- Show the user the summary. Point at the CSV path so they can open it in a spreadsheet.
+- For follow-up scenarios ("what if I do $300 instead of $200?"), edit the spec JSON and re-run `amortize.py` — do not re-prompt the whole interactive flow, and do not recompute totals by hand.
 
 ## Limitations and checks
 

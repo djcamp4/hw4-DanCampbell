@@ -25,13 +25,21 @@ I picked this over the other options (subtitle resyncer, flaky-test detector, li
 
 ## How to use
 
-Write a JSON loan spec, then run the script:
+Two ways:
+
+**Interactive** — `new_loan.py` prompts for each required field, validates inputs (numbers, ISO dates, schedule choice), loops on extras and rate changes, writes the spec, and runs the amortizer:
+
+```bash
+python3 .agents/skills/mortgage-amortization/scripts/new_loan.py --out my_loan.json
+```
+
+**Direct** — if you already have (or can write) a JSON spec, run the amortizer on it:
 
 ```bash
 python3 .agents/skills/mortgage-amortization/scripts/amortize.py path/to/spec.json
 ```
 
-The script writes `<spec>.schedule.csv` and `<spec>.summary.md` next to the spec, and echoes the summary to stdout.
+Either way, the amortizer writes `<spec>.schedule.csv` and `<spec>.summary.md` next to the spec, and echoes the summary to stdout.
 
 Three example specs are included under [`assets/`](assets/):
 - [`example_30yr_fixed.json`](assets/example_30yr_fixed.json) — vanilla 30-year fixed.
