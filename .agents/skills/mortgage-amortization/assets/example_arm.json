@@ -1,0 +1,10 @@
+{
+  "principal": 400000,
+  "apr": 6.25,
+  "term_years": 30,
+  "start_date": "2026-05-01",
+  "schedule": "monthly",
+  "rate_changes": [
+    {"effective": "2031-05-01", "apr": 7.50}
+  ]
+}
