@@ -319,11 +319,117 @@ def write_report(metas: list[FileMeta], out_dir: Path) -> Path:
     return path
 
 
+# --- Live, agent-style terminal output ---------------------------------------
+
+class C:
+    """ANSI color codes; auto-disabled when stdout is not a terminal."""
+    ENABLE = sys.stdout.isatty()
+    RESET = "\033[0m" if ENABLE else ""
+    BOLD = "\033[1m" if ENABLE else ""
+    DIM = "\033[2m" if ENABLE else ""
+    GREEN = "\033[32m" if ENABLE else ""
+    YELLOW = "\033[33m" if ENABLE else ""
+    RED = "\033[31m" if ENABLE else ""
+    CYAN = "\033[36m" if ENABLE else ""
+    GRAY = "\033[90m" if ENABLE else ""
+
+
+ACTION_STYLE = {
+    "extract": (C.GREEN, "extract", "safe to score"),
+    "review":  (C.YELLOW, "review",  "human required"),
+    "refuse":  (C.RED,    "refuse",  "not a resume"),
+}
+
+
+def _say(line: str = "") -> None:
+    print(line, flush=True)
+
+
+def _live_file_trace(idx: int, total: int, path: Path, meta: FileMeta) -> None:
+    color, label, note = ACTION_STYLE[meta.action]
+    _say(f"{C.BOLD}[{idx}/{total}]{C.RESET} {path.name}")
+    _say(f"  {C.GRAY}├─{C.RESET} format: {meta.file_type}"
+         + (f", {meta.page_count} page(s)" if meta.page_count else ""))
+    if meta.error:
+        _say(f"  {C.GRAY}├─{C.RESET} {C.RED}error:{C.RESET} {meta.error}")
+    else:
+        _say(f"  {C.GRAY}├─{C.RESET} extracted {meta.char_count} chars / {meta.word_count} words")
+
+    if "hidden_text_detected" in meta.flags:
+        _say(f"  {C.GRAY}├─{C.RESET} {C.YELLOW}⚠ hidden text detected{C.RESET}"
+             f" ({len(meta.hidden_text_excerpts)} excerpt(s))")
+        for ex in meta.hidden_text_excerpts[:1]:
+            preview = ex.replace("\n", " ")[:100]
+            _say(f"  {C.GRAY}│{C.RESET}    {C.DIM}\"{preview}…\"{C.RESET}")
+    if meta.injection_phrases:
+        _say(f"  {C.GRAY}├─{C.RESET} {C.YELLOW}⚠ injection phrases:{C.RESET}")
+        for phrase in meta.injection_phrases[:3]:
+            _say(f"  {C.GRAY}│{C.RESET}    - {phrase}")
+    if "too_short_for_resume" in meta.flags:
+        _say(f"  {C.GRAY}├─{C.RESET} {C.RED}✗ too short to be a resume{C.RESET}")
+    if "no_resume_sections_found" in meta.flags:
+        _say(f"  {C.GRAY}├─{C.RESET} {C.RED}✗ no resume sections found{C.RESET}")
+
+    icon = {"extract": "✅", "review": "🔶", "refuse": "⛔"}[meta.action]
+    _say(f"  {C.GRAY}└─{C.RESET} {icon} {color}{C.BOLD}{label}{C.RESET} — {note}")
+    _say()
+
+
+def _bar(count: int, total: int, width: int = 28) -> str:
+    if total <= 0:
+        return "·" * width
+    filled = round(count / total * width)
+    return "█" * filled + "░" * (width - filled)
+
+
+def _live_summary(metas: list[FileMeta], report_path: Path, out_dir: Path) -> None:
+    total = len(metas)
+    counts = {"extract": 0, "review": 0, "refuse": 0}
+    by_format: dict[str, int] = {}
+    for m in metas:
+        counts[m.action] = counts.get(m.action, 0) + 1
+        by_format[m.file_type] = by_format.get(m.file_type, 0) + 1
+
+    _say(f"{C.BOLD}{'═' * 58}{C.RESET}")
+    _say(f"{C.BOLD}SUMMARY{C.RESET} — {total} file(s) processed")
+    _say()
+    _say(f"  {'By action':<10}")
+    for action in ("extract", "review", "refuse"):
+        color, label, _ = ACTION_STYLE[action]
+        _say(f"  {color}{label:<8}{C.RESET} {_bar(counts[action], total)}  "
+             f"{counts[action]} / {total}")
+    _say()
+    _say(f"  {'By format':<10}")
+    for fmt in sorted(by_format):
+        _say(f"  {C.CYAN}{fmt:<8}{C.RESET} {_bar(by_format[fmt], total)}  "
+             f"{by_format[fmt]} / {total}")
+    _say()
+
+    for action in ("extract", "review", "refuse"):
+        bucket = [m for m in metas if m.action == action]
+        if not bucket:
+            continue
+        color, label, note = ACTION_STYLE[action]
+        icon = {"extract": "✅", "review": "🔶", "refuse": "⛔"}[action]
+        _say(f"{icon} {color}{C.BOLD}{label.upper()}{C.RESET} ({len(bucket)}) — {note}:")
+        for m in sorted(bucket, key=lambda x: Path(x.path).name):
+            name = Path(m.path).name
+            detail = ", ".join(m.flags) if m.flags else f"{m.char_count} chars, {m.word_count} words"
+            _say(f"  • {name:<32} {C.GRAY}{detail}{C.RESET}")
+        _say()
+
+    _say(f"{C.GRAY}📄 Full CSV report:{C.RESET} {report_path}")
+    _say(f"{C.GRAY}📂 Cleaned text:   {C.RESET} {out_dir}/*.txt")
+    _say(f"{C.GRAY}🔍 Per-file metadata:{C.RESET} {out_dir}/*.meta.json")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="Extract resumes; flag adversarial inputs.")
     ap.add_argument("path", type=Path, help="file or directory of applicant files")
     ap.add_argument("--out-dir", type=Path, default=None,
                     help="where to write outputs (default: ./extracted/ next to input)")
+    ap.add_argument("--quiet", action="store_true",
+                    help="suppress live trace and only print a one-line summary to stderr")
     args = ap.parse_args()
 
     if not args.path.exists():
@@ -334,28 +440,47 @@ def main() -> int:
         files = [args.path]
         out_dir = args.out_dir or args.path.parent / "extracted"
     else:
+        out_dir = args.out_dir or args.path / "extracted"
+        out_dir_resolved = out_dir.resolve()
         files = sorted(
             p for p in args.path.rglob("*")
-            if p.is_file() and p.suffix.lower() in EXTRACTORS
+            if p.is_file()
+            and p.suffix.lower() in EXTRACTORS
+            and out_dir_resolved not in p.resolve().parents
         )
-        out_dir = args.out_dir or args.path / "extracted"
 
     if not files:
         print("error: no supported files found", file=sys.stderr)
         return 2
 
     out_dir.mkdir(parents=True, exist_ok=True)
-    metas = [process_file(p, out_dir) for p in files]
+
+    if not args.quiet:
+        _say(f"{C.BOLD}{C.CYAN}🔍 resume-extractor{C.RESET} "
+             f"— analyzing {len(files)} file(s) in {C.BOLD}{args.path}{C.RESET}")
+        _say()
+
+    metas: list[FileMeta] = []
+    for i, p in enumerate(files, start=1):
+        meta = process_file(p, out_dir)
+        metas.append(meta)
+        if not args.quiet:
+            _live_file_trace(i, len(files), p, meta)
+
     report_path = write_report(metas, out_dir)
 
-    counts = {"extract": 0, "review": 0, "refuse": 0}
-    for m in metas:
-        counts[m.action] = counts.get(m.action, 0) + 1
-    print(f"processed {len(metas)} file(s): "
-          f"{counts['extract']} ok, {counts['review']} flagged, {counts['refuse']} refused",
-          file=sys.stderr)
-    print(f"report: {report_path}", file=sys.stderr)
-    print(f"outputs: {out_dir}", file=sys.stderr)
+    if args.quiet:
+        counts = {"extract": 0, "review": 0, "refuse": 0}
+        for m in metas:
+            counts[m.action] = counts.get(m.action, 0) + 1
+        print(f"processed {len(metas)} file(s): "
+              f"{counts['extract']} ok, {counts['review']} flagged, {counts['refuse']} refused",
+              file=sys.stderr)
+        print(f"report: {report_path}", file=sys.stderr)
+        print(f"outputs: {out_dir}", file=sys.stderr)
+    else:
+        _live_summary(metas, report_path, out_dir)
+
     return 0
 
 
