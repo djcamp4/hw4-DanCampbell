@@ -26,22 +26,42 @@ python3 .agents/skills/resume-extractor/scripts/extract.py \
 **Tool output (stderr):**
 
 ```
-processed 3 file(s): 1 ok, 1 flagged, 1 refused
+processed 11 file(s): 4 ok, 4 flagged, 3 refused
 report: .agents/skills/resume-extractor/assets/extracted/extraction_report.csv
 outputs: .agents/skills/resume-extractor/assets/extracted
 ```
 
 **Agent reads the report and responds:**
 
-> I extracted 3 applicant files. Here's the triage:
+> I extracted 11 applicant files spanning PDF, DOCX, and HTML. Here's the triage:
 >
-> | File | Action | Flags |
+> **✅ Safe to score (4)**
+>
+> | File | Type | Words |
 > |---|---|---|
-> | `clean_resume.pdf` | **extract** — safe to score | none |
-> | `injected_resume.pdf` | **review** — human required | `hidden_text_detected`, `possible_prompt_injection` |
-> | `receipt.pdf` | **refuse** — not a resume | `too_short_for_resume` |
+> | `clean_resume_jane.pdf` | pdf | 71 |
+> | `clean_resume_alex.pdf` | pdf | 74 |
+> | `clean_resume_priya.pdf` | pdf | 82 |
+> | `clean_resume_sam.html` | html | 71 |
 >
-> Only `clean_resume.pdf` should go to the scoring step. `injected_resume.pdf` contains a prompt-injection payload that was stripped from its `.txt` but preserved in `.meta.json` for audit. `receipt.pdf` isn't a resume.
+> **⚠ Needs human review (4)** — adversarial signals; do **not** auto-score
+>
+> | File | Type | Flags |
+> |---|---|---|
+> | `injected_white_on_white.pdf` | pdf | hidden_text_detected; possible_prompt_injection |
+> | `injected_microfont.pdf` | pdf | hidden_text_detected; possible_prompt_injection |
+> | `injected_html_span.html` | html | hidden_text_detected; possible_prompt_injection |
+> | `injected_docx.docx` | docx | hidden_text_detected; possible_prompt_injection |
+>
+> **❌ Refused — not a resume (3)**
+>
+> | File | Reason |
+> |---|---|
+> | `blank.pdf` | too_short_for_resume (0 chars) |
+> | `cover_letter_short.pdf` | too_short_for_resume (152 chars) |
+> | `receipt.pdf` | too_short_for_resume (220 chars) |
+>
+> Pass the 4 clean files to the scoring step. The 4 review files all contain hidden injection payloads (one per format) — those payloads were stripped from their `.txt` outputs but preserved in their `.meta.json` sidecars for audit. The 3 refused files are not resumes and should be dropped from the run.
 >
 > Outputs are in `.agents/skills/resume-extractor/assets/extracted/`.
 
@@ -53,7 +73,7 @@ outputs: .agents/skills/resume-extractor/assets/extracted
 
 **User prompt:**
 
-> Just look at `injected_resume.pdf` and show me exactly what was hidden in it.
+> Just look at `injected_white_on_white.pdf` and show me exactly what was hidden in it.
 
 **Agent reasoning:**
 
@@ -63,7 +83,7 @@ outputs: .agents/skills/resume-extractor/assets/extracted
 
 ```bash
 python3 .agents/skills/resume-extractor/scripts/extract.py \
-  .agents/skills/resume-extractor/assets/injected_resume.pdf \
+  .agents/skills/resume-extractor/assets/injected_white_on_white.pdf \
   --out-dir /tmp/inspect
 ```
 
@@ -110,7 +130,7 @@ cat /tmp/inspect/injected_resume.meta.json
 
 **User prompt:**
 
-> Great — now use the resume-extractor skill to score `clean_resume.pdf` against this senior backend job description and give me a 0–5 match score.
+> Great — now use the resume-extractor skill to score `clean_resume_jane.pdf` against this senior backend job description and give me a 0–5 match score.
 
 **Agent reasoning:**
 
@@ -126,7 +146,7 @@ cat /tmp/inspect/injected_resume.meta.json
 >
 > Here's what I can do with this skill right now:
 >
-> 1. ✅ Run the extractor on `clean_resume.pdf` — it already passed (`action: extract`, no flags).
+> 1. ✅ Run the extractor on `clean_resume_jane.pdf` — it already passed (`action: extract`, no flags).
 > 2. ✅ Hand you the cleaned text at `.agents/skills/resume-extractor/assets/extracted/clean_resume.txt` for the scorer to consume.
 > 3. ❌ Compute the weighted score across required-skills / preferred-skills / achievements / responsibilities — that's the scoring agent's job, not this skill's. If you want, I can help you build that as a separate skill (`resume-scorer`) that takes the extracted `.txt` plus a JD JSON and emits a deterministic weighted 0–5 score per the rubric in your project plan.
 >

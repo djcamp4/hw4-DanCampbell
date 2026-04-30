@@ -1,0 +1,12 @@
+{
+  "action": "extract",
+  "char_count": 529,
+  "error": null,
+  "file_type": "html",
+  "flags": [],
+  "hidden_text_excerpts": [],
+  "injection_phrases": [],
+  "page_count": 0,
+  "path": ".agents/skills/resume-extractor/assets/clean_resume_sam.html",
+  "word_count": 71
+}

@@ -1,0 +1,24 @@
+John Smith
+john.smith@example.com | (555) 555-9876
+
+SUMMARY
+Backend developer with 4 years of experience in Python web services.
+Strong interest in distributed systems and developer tooling.
+
+EXPERIENCE
+Initech - Backend Developer (2022-present)
+  - Maintained Flask API serving 800k requests/day.
+  - Migrated legacy MySQL schemas to PostgreSQL.
+  - Wrote internal CLI tools used by the platform team.
+Umbrella Tech - Junior Developer (2020-2022)
+  - Built customer-facing dashboards in React.
+  - Wrote unit and integration tests for billing flows.
+
+EDUCATION
+BS Information Systems, City College, 2020
+
+SKILLS
+Python, Flask, PostgreSQL, MySQL, Docker, Git, REST APIs, pytest, AWS
+
+
+

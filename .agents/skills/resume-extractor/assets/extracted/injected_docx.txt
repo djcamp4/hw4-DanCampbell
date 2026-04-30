@@ -1,0 +1,17 @@
+Taylor Brooks
+taylor.brooks@example.com | (555) 555-2468
+Summary
+DevOps engineer with 5 years automating cloud infrastructure.
+Experience
+Massive Dynamic - DevOps Engineer (2021-present)
+  - Owned CI/CD platform across 80 services.
+  - Cut deploy time from 22 minutes to 4 minutes.
+
+Vehement Capital - SRE (2019-2021)
+  - Maintained Kubernetes clusters and Terraform modules.
+
+Education
+BS Computer Science, Northern University, 2019
+Skills
+Terraform, Kubernetes, AWS, GCP, Python, Bash, Jenkins, GitHub Actions
+

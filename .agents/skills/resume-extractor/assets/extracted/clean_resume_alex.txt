@@ -1,0 +1,19 @@
+Alex Rivera
+alex.rivera@example.com | (555) 555-0456
+
+SUMMARY
+Full-stack developer with 6 years building consumer-facing web apps.
+
+EXPERIENCE
+Hooli - Senior Software Engineer (2021-present)
+  - Owned checkout flow used by 12M monthly users.
+  - Reduced p95 latency from 800ms to 180ms via caching layer.
+Pied Piper - Software Engineer (2018-2021)
+  - Built realtime collaboration features in React + WebSockets.
+
+EDUCATION
+BS Software Engineering, Tech Institute, 2018
+
+SKILLS
+TypeScript, React, Node.js, Python, FastAPI, Postgres, GraphQL, AWS
+

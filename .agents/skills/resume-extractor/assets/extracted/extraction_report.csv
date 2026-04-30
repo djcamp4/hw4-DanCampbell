@@ -1,4 +1,12 @@
 filename,action,file_type,char_count,word_count,flags
-clean_resume.pdf,extract,pdf,516,71,
+clean_resume_alex.pdf,extract,pdf,547,74,
+clean_resume_jane.pdf,extract,pdf,516,71,
+clean_resume_priya.pdf,extract,pdf,607,82,
+clean_resume_sam.html,extract,html,529,71,
+blank.pdf,refuse,pdf,0,0,too_short_for_resume
+cover_letter_short.pdf,refuse,pdf,152,27,too_short_for_resume
 receipt.pdf,refuse,pdf,220,25,too_short_for_resume
-injected_resume.pdf,review,pdf,686,95,hidden_text_detected;possible_prompt_injection
+injected_docx.docx,review,docx,513,68,hidden_text_detected;possible_prompt_injection
+injected_html_span.html,review,html,840,109,hidden_text_detected;possible_prompt_injection
+injected_microfont.pdf,review,pdf,688,95,hidden_text_detected;possible_prompt_injection
+injected_white_on_white.pdf,review,pdf,686,95,hidden_text_detected;possible_prompt_injection

@@ -198,21 +198,34 @@ HTML_TAG = re.compile(r"<[^>]+>")
 HTML_STYLE_OR_SCRIPT = re.compile(r"<(script|style)[^>]*>.*?</\1>", re.IGNORECASE | re.DOTALL)
 
 
+HIDDEN_ELEMENT_RE = re.compile(
+    r'<(?P<tag>[a-z][a-z0-9]*)\b[^>]*style\s*=\s*"[^"]*'
+    r'(?:display\s*:\s*none|visibility\s*:\s*hidden|color\s*:\s*#?(?:fff|ffffff|white)|font-size\s*:\s*0)'
+    r'[^"]*"[^>]*>(?P<inner>.*?)</(?P=tag)\s*>',
+    re.IGNORECASE | re.DOTALL,
+)
+
+
 def extract_html(path: Path, meta: FileMeta) -> str:
     raw = path.read_text(encoding="utf-8", errors="replace")
-    # Detect any hidden-style spans before stripping tags.
-    hidden_spans = re.findall(
-        r'<[^>]+style="[^"]*(?:' + HTML_HIDDEN_STYLE.pattern + r')[^"]*"[^>]*>([^<]*)</[^>]+>',
-        raw,
-        re.IGNORECASE,
-    )
-    hidden_text = [m[-1] for m in hidden_spans if isinstance(m, tuple) and m[-1].strip()]
+
+    # Detect AND remove any hidden-style elements before tags are stripped.
+    hidden_text: list[str] = []
+
+    def _capture_and_drop(m: re.Match) -> str:
+        inner = re.sub(r"<[^>]+>", " ", m.group("inner")).strip()
+        if inner:
+            hidden_text.append(inner)
+        return " "  # remove the whole element from the visible output
+
+    cleaned = HIDDEN_ELEMENT_RE.sub(_capture_and_drop, raw)
+
     if hidden_text:
         meta.flags.append("hidden_text_detected")
-        meta.hidden_text_excerpts = [t.strip()[:200] for t in hidden_text[:10]]
+        meta.hidden_text_excerpts = [t[:200] for t in hidden_text[:10]]
 
     # Strip script/style blocks, then tags.
-    no_blocks = HTML_STYLE_OR_SCRIPT.sub("", raw)
+    no_blocks = HTML_STYLE_OR_SCRIPT.sub("", cleaned)
     text = HTML_TAG.sub(" ", no_blocks)
     return re.sub(r"\s+", " ", text).strip()
 

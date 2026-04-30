@@ -1,0 +1,20 @@
+Priya Shah
+priya.shah@example.com | (555) 555-0789
+
+SUMMARY
+Data engineer with 5 years building analytics pipelines and warehouses.
+
+EXPERIENCE
+Stark Industries - Data Engineer (2020-present)
+  - Designed Airflow pipelines moving 2TB/day from Kafka to Snowflake.
+  - Implemented data quality checks reducing downstream incidents by 60%.
+Wayne Enterprises - Junior Data Engineer (2019-2020)
+  - Wrote dbt models and Looker dashboards for finance team.
+
+EDUCATION
+MS Data Science, Tech University, 2019
+BS Statistics, State College, 2017
+
+SKILLS
+Python, SQL, Airflow, dbt, Snowflake, Spark, Kafka, Terraform
+
