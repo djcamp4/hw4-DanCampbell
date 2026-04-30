@@ -96,6 +96,16 @@ Detection rules are documented in [`references/detection_rules.md`](references/d
 - **Format coverage.** Real applicant intake is mixed PDF/DOCX/HTML, and the extractor handles all three with the same per-attribute hidden-text logic.
 - **Demo files reproduce the threat model exactly** — the project plan names white-on-white injection as a specific failure case, and the demo's `injected_resume.pdf` exercises that path end-to-end.
 
+## Demo
+
+Three transcripts of the skill being used in an agent — a normal batch
+extraction, an edge-case single-file inspection, and an out-of-scope
+request that the skill declines — are in [`DEMO.md`](DEMO.md).
+
+## Demo video
+
+TODO: add link
+
 ## Limitations
 
 - **No OCR.** Image-only or scanned PDFs land in `refuse` with `too_short_for_resume`. A scanned resume from a real candidate would be wrongly rejected; a separate OCR step would need to feed this skill.
