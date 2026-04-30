@@ -39,7 +39,7 @@ agent picks up the skill automatically from the `name` and
 Two ways to invoke it:
 
 1. **Implicit (preferred for the demo).** Plain-English requests like
-   *"Extract the resumes in `.agents/skills/resume-extractor/assets/`
+   *"Extract the resumes in `assets/`
    and tell me which are safe to score"* match the skill's description
    and the agent activates it automatically.
 2. **Explicit.** Type `/resume-extractor` in the Claude Code prompt

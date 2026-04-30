@@ -1,6 +1,6 @@
 {
   "action": "refuse",
-  "char_count": 0,
+  "char_count": 152,
   "error": null,
   "file_type": "pdf",
   "flags": [
@@ -9,6 +9,6 @@
   "hidden_text_excerpts": [],
   "injection_phrases": [],
   "page_count": 1,
-  "path": ".agents/skills/resume-extractor/assets/blank.pdf",
-  "word_count": 0
+  "path": "assets/cover_letter_short.pdf",
+  "word_count": 27
 }

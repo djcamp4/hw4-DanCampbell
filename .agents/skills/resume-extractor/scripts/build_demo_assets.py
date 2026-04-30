@@ -31,7 +31,10 @@ import fitz
 from docx import Document
 from docx.shared import Pt, RGBColor
 
-ASSETS = Path(__file__).resolve().parent.parent / "assets"
+# assets/ now lives at the repo root, four levels up from this script:
+#   <repo>/assets/                                              <-- target
+#   <repo>/.agents/skills/resume-extractor/scripts/build_demo_assets.py
+ASSETS = Path(__file__).resolve().parents[4] / "assets"
 ASSETS.mkdir(parents=True, exist_ok=True)
 
 # --- shared boilerplate ------------------------------------------------------
