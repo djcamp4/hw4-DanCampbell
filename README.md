@@ -142,7 +142,7 @@ Detection rules are documented in [`references/detection_rules.md`](.agents/skil
 
 Three transcripts of the skill being used in an agent — a normal batch
 extraction, an edge-case single-file inspection, and an out-of-scope
-request that the skill declines — are in [`DEMO.md`](.agents/skills/resume-extractor/DEMO.md).
+request that the skill declines — are in [`DEMO.md`](DEMO.md).
 
 ## Demo video
 
