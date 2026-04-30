@@ -1,0 +1,19 @@
+Jane Doe
+jane.doe@example.com | (555) 555-0123
+
+SUMMARY
+Senior backend engineer with 8 years of Python and Django experience.
+
+EXPERIENCE
+Acme Corp · Senior Backend Engineer (2019·present)
+  - Led migration of monolith to service architecture.
+  - Built async task pipeline handling 5M jobs/day.
+Globex · Backend Engineer (2016·2019)
+  - Owned billing service in Django and PostgreSQL.
+
+EDUCATION
+BS Computer Science, State University, 2016
+
+SKILLS
+Python, Django, PostgreSQL, Redis, AWS, Kafka, Docker, Kubernetes
+

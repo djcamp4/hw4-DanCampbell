@@ -1,0 +1,12 @@
+{
+  "action": "extract",
+  "char_count": 516,
+  "error": null,
+  "file_type": "pdf",
+  "flags": [],
+  "hidden_text_excerpts": [],
+  "injection_phrases": [],
+  "page_count": 1,
+  "path": ".agents/skills/resume-extractor/assets/clean_resume.pdf",
+  "word_count": 71
+}

@@ -1,0 +1,14 @@
+{
+  "action": "refuse",
+  "char_count": 220,
+  "error": null,
+  "file_type": "pdf",
+  "flags": [
+    "too_short_for_resume"
+  ],
+  "hidden_text_excerpts": [],
+  "injection_phrases": [],
+  "page_count": 1,
+  "path": ".agents/skills/resume-extractor/assets/receipt.pdf",
+  "word_count": 25
+}

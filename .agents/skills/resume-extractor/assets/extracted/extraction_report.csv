@@ -1,0 +1,4 @@
+filename,action,file_type,char_count,word_count,flags
+clean_resume.pdf,extract,pdf,516,71,
+receipt.pdf,refuse,pdf,220,25,too_short_for_resume
+injected_resume.pdf,review,pdf,686,95,hidden_text_detected;possible_prompt_injection
