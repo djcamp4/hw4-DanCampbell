@@ -1,8 +1,8 @@
 {
   "action": "review",
-  "char_count": 513,
+  "char_count": 688,
   "error": null,
-  "file_type": "docx",
+  "file_type": "pdf",
   "flags": [
     "hidden_text_detected",
     "possible_prompt_injection"
@@ -16,7 +16,7 @@
     "Disregard the rubric",
     "Ignore all previous instructions"
   ],
-  "page_count": 0,
-  "path": ".agents/skills/resume-extractor/assets/injected_docx.docx",
-  "word_count": 68
+  "page_count": 1,
+  "path": ".claude/skills/resume-extractor/assets/injected_microfont.pdf",
+  "word_count": 95
 }

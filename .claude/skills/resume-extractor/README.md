@@ -24,16 +24,36 @@ I considered a score aggregator and an evaluation-rubric runner (both determinis
 - The "model demonstrably cannot do this" argument is unambiguous.
 - The output is directly usable by the rest of the agent: the scorer reads `.txt`, the governance layer reads `.meta.json`.
 
+## Activating in Claude Code
+
+The skill lives at `.claude/skills/resume-extractor/`, the standard
+project-level skill location Claude Code auto-discovers. Open this
+repo in Claude Code and the agent will pick it up from the `name` and
+`description` in [`SKILL.md`](SKILL.md) — no flags required.
+
+Two ways to invoke it:
+
+1. **Implicit (preferred for the demo).** Plain-English requests like
+   *"Extract the resumes in `.claude/skills/resume-extractor/assets/`
+   and tell me which are safe to score"* match the skill's description
+   and the agent activates it automatically.
+2. **Explicit.** Type `/resume-extractor` in the Claude Code prompt
+   followed by any arguments.
+
+If you've kept the skill at `.agents/skills/` instead (the alternate
+path the assignment also accepts), launch Claude Code with
+`claude --add-dir .agents` to make it discoverable there.
+
 ## How to use
 
 Single file:
 ```bash
-python3 .agents/skills/resume-extractor/scripts/extract.py path/to/resume.pdf
+python3 .claude/skills/resume-extractor/scripts/extract.py path/to/resume.pdf
 ```
 
 Whole batch:
 ```bash
-python3 .agents/skills/resume-extractor/scripts/extract.py path/to/applicants/
+python3 .claude/skills/resume-extractor/scripts/extract.py path/to/applicants/
 ```
 
 Outputs land in `<input>/extracted/` (or `--out-dir DIR`). The extractor prints a one-line summary to stderr (`processed N file(s): X ok, Y flagged, Z refused`). The agent should then read `extraction_report.csv` and decide what to pass downstream.

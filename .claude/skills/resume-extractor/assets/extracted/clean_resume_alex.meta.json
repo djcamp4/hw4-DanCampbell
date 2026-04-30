@@ -1,12 +1,12 @@
 {
   "action": "extract",
-  "char_count": 516,
+  "char_count": 547,
   "error": null,
   "file_type": "pdf",
   "flags": [],
   "hidden_text_excerpts": [],
   "injection_phrases": [],
   "page_count": 1,
-  "path": ".agents/skills/resume-extractor/assets/clean_resume_jane.pdf",
-  "word_count": 71
+  "path": ".claude/skills/resume-extractor/assets/clean_resume_alex.pdf",
+  "word_count": 74
 }

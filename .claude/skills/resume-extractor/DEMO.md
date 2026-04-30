@@ -10,7 +10,7 @@ The agent is Claude with project-level skills enabled. The skill is auto-discove
 
 **User prompt:**
 
-> I have a folder of applicant uploads at `.agents/skills/resume-extractor/assets/`. Extract them and tell me which ones are safe to score.
+> I have a folder of applicant uploads at `.claude/skills/resume-extractor/assets/`. Extract them and tell me which ones are safe to score.
 
 **Agent reasoning (abbreviated):**
 
@@ -19,16 +19,16 @@ The agent is Claude with project-level skills enabled. The skill is auto-discove
 **Tool call:**
 
 ```bash
-python3 .agents/skills/resume-extractor/scripts/extract.py \
-  .agents/skills/resume-extractor/assets/
+python3 .claude/skills/resume-extractor/scripts/extract.py \
+  .claude/skills/resume-extractor/assets/
 ```
 
 **Tool output (stderr):**
 
 ```
 processed 11 file(s): 4 ok, 4 flagged, 3 refused
-report: .agents/skills/resume-extractor/assets/extracted/extraction_report.csv
-outputs: .agents/skills/resume-extractor/assets/extracted
+report: .claude/skills/resume-extractor/assets/extracted/extraction_report.csv
+outputs: .claude/skills/resume-extractor/assets/extracted
 ```
 
 **Agent reads the report and responds:**
@@ -63,7 +63,7 @@ outputs: .agents/skills/resume-extractor/assets/extracted
 >
 > Pass the 4 clean files to the scoring step. The 4 review files all contain hidden injection payloads (one per format) — those payloads were stripped from their `.txt` outputs but preserved in their `.meta.json` sidecars for audit. The 3 refused files are not resumes and should be dropped from the run.
 >
-> Outputs are in `.agents/skills/resume-extractor/assets/extracted/`.
+> Outputs are in `.claude/skills/resume-extractor/assets/extracted/`.
 
 **Why this is the right activation:** the user's phrase "extract them and tell me which ones are safe to score" is a near-verbatim match for the skill's purpose. The agent ran the script, read its CSV output, and turned it into a triage decision — it did not try to do the parsing or hidden-text detection itself.
 
@@ -82,8 +82,8 @@ outputs: .agents/skills/resume-extractor/assets/extracted
 **Tool call:**
 
 ```bash
-python3 .agents/skills/resume-extractor/scripts/extract.py \
-  .agents/skills/resume-extractor/assets/injected_white_on_white.pdf \
+python3 .claude/skills/resume-extractor/scripts/extract.py \
+  .claude/skills/resume-extractor/assets/injected_white_on_white.pdf \
   --out-dir /tmp/inspect
 ```
 
@@ -147,7 +147,7 @@ cat /tmp/inspect/injected_resume.meta.json
 > Here's what I can do with this skill right now:
 >
 > 1. ✅ Run the extractor on `clean_resume_jane.pdf` — it already passed (`action: extract`, no flags).
-> 2. ✅ Hand you the cleaned text at `.agents/skills/resume-extractor/assets/extracted/clean_resume.txt` for the scorer to consume.
+> 2. ✅ Hand you the cleaned text at `.claude/skills/resume-extractor/assets/extracted/clean_resume.txt` for the scorer to consume.
 > 3. ❌ Compute the weighted score across required-skills / preferred-skills / achievements / responsibilities — that's the scoring agent's job, not this skill's. If you want, I can help you build that as a separate skill (`resume-scorer`) that takes the extracted `.txt` plus a JD JSON and emits a deterministic weighted 0–5 score per the rubric in your project plan.
 >
 > Want me to set that up?

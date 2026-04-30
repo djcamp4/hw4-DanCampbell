@@ -7,6 +7,6 @@
   "hidden_text_excerpts": [],
   "injection_phrases": [],
   "page_count": 0,
-  "path": ".agents/skills/resume-extractor/assets/clean_resume_sam.html",
+  "path": ".claude/skills/resume-extractor/assets/clean_resume_sam.html",
   "word_count": 71
 }
