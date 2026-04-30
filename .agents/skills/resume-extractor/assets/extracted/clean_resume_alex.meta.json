@@ -7,6 +7,6 @@
   "hidden_text_excerpts": [],
   "injection_phrases": [],
   "page_count": 1,
-  "path": ".claude/skills/resume-extractor/assets/clean_resume_alex.pdf",
+  "path": ".agents/skills/resume-extractor/assets/clean_resume_alex.pdf",
   "word_count": 74
 }

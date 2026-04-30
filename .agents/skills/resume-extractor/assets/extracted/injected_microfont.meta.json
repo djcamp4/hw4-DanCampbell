@@ -17,6 +17,6 @@
     "Ignore all previous instructions"
   ],
   "page_count": 1,
-  "path": ".claude/skills/resume-extractor/assets/injected_microfont.pdf",
+  "path": ".agents/skills/resume-extractor/assets/injected_microfont.pdf",
   "word_count": 95
 }
