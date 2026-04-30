@@ -216,3 +216,11 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# macOS
+.DS_Store
+
+# Local mortgage-amortization scratch outputs at repo root
+/my_loan.json
+/my_loan.schedule.csv
+/my_loan.summary.md
