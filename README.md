@@ -2,7 +2,11 @@
 
 ## What it does
 
-The first stage of the Applicant Scoring with Agentic AI pipeline. Reads applicant uploads (PDF, DOCX, HTML, TXT) and produces, for each file:
+This skill validates and cleans resume inputs before they reach the scoring model. It detects two categories of malicious content: hidden text attacks (e.g. white-colored font on a white background, invisible to a human reviewer but fully readable by a text extractor) and direct prompt injection attempts (natural language phrases designed to manipulate the LLM).
+
+Crucially, detection happens at the parse layer — reading per-glyph color, font size, and rendering attributes from the raw binary file — before any content reaches the model.
+
+This will be the first stage of the Applicant Scoring pipeline. It reads applicant uploads (PDF, DOCX, HTML, TXT) and produces, for each file:
 
 - A **clean `.txt`** with hidden adversarial content stripped, ready for the scoring LLM.
 - A **`.meta.json` sidecar** with file metadata, flags, the hidden text that was stripped, and a recommended action: `extract` / `review` / `refuse`.
@@ -15,22 +19,13 @@ It directly addresses two failure cases called out in the project plan:
 
 ## Why I chose this task
 
-The Applicant Scoring project has a 500-resume-per-posting throughput problem and an explicit threat model that includes "white font on a white background that will attempt to directly influence the LLM." That attack works because there's a gap between *what a human sees* (nothing) and *what a naïve text extractor produces* (the full attack string). By the time hidden text reaches a model's context, regex on the prompt is too late — the model has already read it.
+I chose this task to help me build my final project. To ensure integrity of my resume parsing project, this task checks/cleans resume inputs to block malicious resumes from affecting the system.  This could be white font on white paper that a reader cannot see, but also it checks for general verbal prompts that directly address and attempt to affect the LLM.  All the files are extracted (something an LLM cannot do) to a simple text file that anThe Applicant Scoring project has a 500-resume-per-posting throughput problem and an explicit threat model that includes "white font on a white background that will attempt to directly influence the LLM." That attack works because there's a gap between *what a human sees* (nothing) and *what a naïve text extractor produces* (the full attack string). By the time hidden text reaches a model's context, regex on the prompt is too late — the model has already read it.
 
-The only place to close that gap is at the parse layer, where you can read per-glyph color, font size, and rendering attributes from the binary file. **A model literally cannot do this.** PDFs are not text, DOCX is a zip of XML with formatting runs, and detection requires inspecting attributes the model never sees. That is the textbook definition of a script-load-bearing task in the **file extraction** category of the assignment.
+The only place to close that gap is at the parse layer, where you can read per-glyph color, font size, and rendering attributes from the binary file-which an LLM cannot do.   PDFs are not text, DOCX is a zip of XML with formatting runs, and detection requires inspecting attributes the model never sees. 
 
-I considered a score aggregator and an evaluation-rubric runner (both deterministic-formatting tasks that fit the project), but the extractor is the strongest pick because:
-- It is the *first* step of the pipeline — without it, nothing else is safe.
-- The "model demonstrably cannot do this" argument is unambiguous.
-- The output is directly usable by the rest of the agent: the scorer reads `.txt`, the governance layer reads `.meta.json`.
+
 
 ## Activating in Claude Code
-
-The assignment requires the project layout to live under `.agents/`,
-but Claude Code only auto-discovers project skills from
-`.claude/skills/`. This repo bridges the two: the canonical files are
-at `.agents/skills/resume-extractor/`, and `.claude/skills/resume-extractor`
-is a symlink pointing at them. One source of truth, both paths work.
 
 Open this repo in Claude Code (`cd hw4-DanCampbell && claude`) and the
 agent picks up the skill automatically from the `name` and
@@ -117,6 +112,10 @@ All four adversarial variants — PDF white-on-white, PDF micro-font (0.5pt), HT
 
 ## What the script does
 
+The script parses each file and extracts its contents. When it opens a PDF, it reads the raw rendering data for every piece of text — the exact color value, font size, and position stored in the file's internal structure. It applies a fixed rule: if the color is close enough to white or the font size is under one point, that text is hidden. There's no judgment call, just arithmetic on numbers pulled directly from the binary file.
+
+From there the script validates whether the file is actually a resume, computes word and character counts, strips the hidden content, writes a clean output file, and formats a CSV report summarizing the entire batch. Every step produces the same output for the same input, every time--which is why I had to build this rather than use a prompt.
+
 [`scripts/extract.py`](.agents/skills/resume-extractor/scripts/extract.py):
 
 1. **Dispatches by extension** to a per-format extractor (PDF/DOCX/HTML/TXT).
@@ -131,6 +130,8 @@ All four adversarial variants — PDF white-on-white, PDF micro-font (0.5pt), HT
 Detection rules are documented in [`references/detection_rules.md`](.agents/skills/resume-extractor/references/detection_rules.md).
 
 ## What worked well
+
+The skill does exactly what I need it to for the project.  Right now it does all the following perfectly:
 
 - **Detection at the parse layer, not the prompt.** Hidden text is removed before any LLM call. Even if the injection regex misses a novel phrasing, the attack still doesn't reach the scorer because the white text was never copied into the `.txt`.
 - **Three-state action (`extract` / `review` / `refuse`)** maps directly to the project's governance plan: auto-process the safe ones, send the suspicious ones to a human, refuse the wrong-type ones.
@@ -150,9 +151,10 @@ TODO: add link
 
 ## Limitations
 
+There are some remaining limitations.  I think in the future I would like to have a way of adding files rather than needing them to be in the assets folder.  There are also some technical limitations found below:
+
 - **No OCR.** Image-only or scanned PDFs land in `refuse` with `too_short_for_resume`. A scanned resume from a real candidate would be wrongly rejected; a separate OCR step would need to feed this skill.
 - **Page-background assumption.** Hidden-text detection assumes white pages. Resumes printed on tinted templates would generate false positives; the skill flags rather than auto-coerces, so a human can sort it out.
-- **Injection regex is a heuristic.** A clever attacker can paraphrase around the patterns. The stronger guarantee is the structural one (hidden text is removed regardless of phrase). The regex is a useful tripwire, not a safety boundary.
 - **Single-language phrase list.** Patterns are English-only; non-English injection attempts wouldn't trigger `possible_prompt_injection` (though they'd still be stripped if hidden).
 - **No PII redaction.** The clean `.txt` contains every name, email, and phone number from the visible resume. The project plan calls for case-number assignment in production; that's a separate skill.
 - **DOCX color extraction is best-effort.** Some templates encode colors via theme references rather than direct RGB; if a hidden attack uses a theme color, this skill might miss the color signal (though `font.hidden` and tiny `size` still catch it).
