@@ -1,5 +1,13 @@
 # resume-extractor skill
 
+Video Link:
+https://www.youtube.com/watch?v=Szrn4QcmBHo
+
+GitHub:
+https://github.com/djcamp4/hw4-DanCampbell/tree/main
+
+
+
 ## What it does
 
 This skill validates and cleans resume inputs before they reach the scoring model. It detects two categories of malicious content: hidden text attacks (e.g. white-colored font on a white background, invisible to a human reviewer but fully readable by a text extractor) and direct prompt injection attempts (natural language phrases designed to manipulate the LLM).
